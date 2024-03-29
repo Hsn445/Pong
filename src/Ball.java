@@ -4,15 +4,12 @@ import java.awt.Graphics2D;
 import java.util.Random;
 
 public class Ball {
-    public int x, y, width = 25, height = 25;
+	private Pong pong;		// Pong Class
+	public Random random;	// Renderer
 
-    public int motionX, motionY;
-
-    public Random random;
-
-    private Pong pong;
-
-	public int amountOfHits;
+    public int x, y, width = 25, height = 25;	// Position of ball and its dimensions
+    public int motionX, motionY;				// Ball Trajectory
+	public int numCollisions;					// Number of collisions with paddle
 
     // Initializes Pong, random and initial ball location
     public Ball(Pong pong) {
@@ -31,12 +28,12 @@ public class Ball {
 		if (this.y + height - motionY > pong.height || this.y + motionY < 0) {
 			if (this.motionY < 0) {
 				this.y = 0;
-				this.motionY = random.nextInt(4);
+				this.motionY *= -1;
 
 				if (motionY == 0) { motionY = 1; }
 			}
 			else {
-				this.motionY = -random.nextInt(4);
+				this.motionY *= -1;
 				this.y = pong.height - height;
 
 				if (motionY == 0) { motionY = -1; }
@@ -44,20 +41,20 @@ public class Ball {
 		}
 
 		if (checkCollision(p1) == 1) {
-			this.motionX = 1 + (amountOfHits / 5);
+			this.motionX = 1 + (numCollisions / 5);
 			this.motionY = -2 + random.nextInt(4);
 
 			if (motionY == 0) { motionY = 1; }
 
-			amountOfHits++;
+			numCollisions++;
 		}
 		else if (checkCollision(p2) == 1) {
-			this.motionX = -1 - (amountOfHits / 5);
+			this.motionX = -1 - (numCollisions / 5);
 			this.motionY = -2 + random.nextInt(4);
 
 			if (motionY == 0) { motionY = 1; }
 
-			amountOfHits++;
+			numCollisions++;
 		}
 
 		if (checkCollision(p1) == 2) {
@@ -72,11 +69,11 @@ public class Ball {
 
     // Spawns new ball
     public void spawn() {
-		this.amountOfHits = 0;
+		this.numCollisions = 0;
 		this.x = pong.width / 2 - this.width / 2;
 		this.y = pong.height / 2 - this.height / 2;
 
-		this.motionY = -2 + random.nextInt(4);
+		this.motionY = -1 + random.nextInt(2);
 
 		if (motionY == 0) { motionY = 1; }
 
