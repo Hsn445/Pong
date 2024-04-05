@@ -8,13 +8,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.BorderLayout;
 import java.util.Random;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
 // Class generates Pong game
-public class Pong implements ActionListener, KeyListener {
+public class Pong implements ActionListener, KeyListener{
 	static int scoreLimit = 7;	// Score Limit
 
     public static Pong pong;    // Pong Class
@@ -31,10 +37,10 @@ public class Pong implements ActionListener, KeyListener {
     public int gameStatus = 0;	// 0 - Menu, 1 - Pause, 2 - Play, 3 - End
     public int playerWon;		// Checks if Player 1 or 2 won
 
-	public int botDifficulty;
+	int botDifficulty;
 
     // Initializes renderer and random; sets screen size
-    public Pong() {
+	public Pong() {
         Timer timer = new Timer(20, this);
         JFrame jframe = new JFrame("Pong Project");
 
@@ -42,12 +48,105 @@ public class Pong implements ActionListener, KeyListener {
         renderer = new Renderer();
 
         jframe.setSize(width + 15, height + 35);
-		jframe.setVisible(true);
-		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jframe.add(renderer);
-		jframe.addKeyListener(this);
+        jframe.setVisible(true);
+        jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        jframe.setLayout(new BorderLayout());
 
-		timer.start();
+        // Create a panel to hold the button
+        JPanel panel = new JPanel();
+
+        // Create the "Start Game" button
+        JButton startButton = new JButton("Play Game");
+        panel.add(startButton);
+
+		// Create the "Normal Difficulty" button
+		JButton normalButton = new JButton("Normal Difficulty");
+		panel.add(normalButton);
+
+		// Add an action listener to the button
+		normalButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Set the bot difficulty to normal when the button is clicked
+				botDifficulty = 0;
+				panel.repaint(); // Repaint the panel
+			}
+		});
+
+		// Create the "Hard Difficulty" button
+		JButton hardButton = new JButton("Hard Difficulty");
+		panel.add(hardButton);
+
+		// Add an action listener to the button
+		hardButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Set the bot difficulty to hard when the button is clicked
+				botDifficulty = 1;
+				panel.repaint(); // Repaint the panel
+			}
+		});
+
+        // Add an action listener to the button
+		int speed = 10; // Declare and assign a value to the variable speed
+
+		startButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Start the game when the button is clicked
+				if (gameStatus == 0 || gameStatus == 3) {
+					start(true); 
+				} else if (gameStatus == 1) {
+					gameStatus = 2;
+				} else if (gameStatus == 2) {
+					gameStatus = 1;
+				}
+			}
+		});
+
+		// Key bindings for player 1
+		jframe.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("W"), "move up 1");
+		jframe.getRootPane().getActionMap().put("move up 1", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (p1.y - speed > 0) {
+					p1.y -= speed;
+				}
+			}
+		});
+
+		jframe.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("S"), "move down 1");
+		jframe.getRootPane().getActionMap().put("move down 1", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (p1.y + p1.height + speed < Pong.this.height) {
+					p1.y += speed;
+				}
+			}
+		});
+
+		// Key bindings for player 2
+		jframe.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), "move up 2");
+		jframe.getRootPane().getActionMap().put("move up 2", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (p2.y - speed > 0) {
+					p2.y -= speed;
+				}
+			}
+		});
+
+		jframe.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"), "move down 2");
+		jframe.getRootPane().getActionMap().put("move down 2", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (p2.y + p2.height + speed < Pong.this.height) {
+					p2.y += speed;
+				}
+			}
+		});
+
+        // Add the renderer and panel to the JFrame
+        jframe.add(renderer, BorderLayout.CENTER);
+        jframe.add(panel, BorderLayout.SOUTH);
+
+        timer.start();
     }
 
     // Initializes Paddles and ball
@@ -91,11 +190,6 @@ public class Pong implements ActionListener, KeyListener {
 		g.fillRect(0, 0, width, height);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		// (Remove in final product) For checking distance from center
-		/*g.setColor(Color.WHITE);
-		g.setStroke(new BasicStroke(5f));
-		g.drawLine(width / 2, 0, width / 2, height);
-		g.drawLine(0, height / 2, width, height / 2);*/
 
 		if (gameStatus == 0) {
 			g.setColor(Color.WHITE);
@@ -104,7 +198,6 @@ public class Pong implements ActionListener, KeyListener {
 
 			if (!setDifficulty) {
 				g.setFont(new Font("Arial", 1, 30));
-				g.drawString("Press Space to Play", width / 2 - 150, height / 2 - 25); // Adjust Location
 				g.drawString("Press Shift to Play with Bot", width / 2 - 200, height / 2 + 25); // Adjust Location
 				g.drawString("<< Score Limit: " + scoreLimit + " >>", width / 2 - 150, height / 2 + 75); // Adjust Location
 			}
@@ -115,7 +208,6 @@ public class Pong implements ActionListener, KeyListener {
 
 			g.setFont(new Font("Arial", 1, 30));
 			g.drawString("<< Bot Difficulty: " + string + " >>", width / 2 - 180, height / 2 - 25); // Adjust Location
-			g.drawString("Press Space to Play", width / 2 - 150, height / 2 + 25); // Adjust Location
 		}
 
 		if (gameStatus == 1) {
@@ -172,33 +264,17 @@ public class Pong implements ActionListener, KeyListener {
 		if (id == KeyEvent.VK_S) { s = true; }
 		if (id == KeyEvent.VK_UP) { up = true; }
 		if (id == KeyEvent.VK_DOWN) { down = true; }
-		if (id == KeyEvent.VK_D) { //Right
-			if (setDifficulty) {
-				if (botDifficulty < 1) { botDifficulty++; }
-				else { botDifficulty = 0; }
-			}
+		if (gameStatus != 1) {
+			if (id == KeyEvent.VK_W) { w = true; }
+			if (id == KeyEvent.VK_S) { s = true; }
+			if (id == KeyEvent.VK_UP) { up = true; }
+			if (id == KeyEvent.VK_DOWN) { down = true; }
 		}
-		if (id == KeyEvent.VK_A) { //Left
-			if (setDifficulty) {
-				if (botDifficulty > 0) { botDifficulty--; }
-				else { botDifficulty = 1; }
-			}
-		}
+		
 		if (id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3)) { gameStatus = 0; }
 		if (id == KeyEvent.VK_SHIFT && gameStatus == 0) {
 			bot = true;
 			setDifficulty = true;
-		}
-		if (id == KeyEvent.VK_SPACE) {
-			if (gameStatus == 0 || gameStatus == 3) {
-				if (!setDifficulty) { bot = false; }
-				else { setDifficulty = false; }
-
-				if(botDifficulty == 1) { start(true); }
-				else { start(false); }
-			}
-			else if (gameStatus == 1) { gameStatus = 2; }
-			else if (gameStatus == 2) { gameStatus = 1; }
 		}
     }
 
@@ -207,10 +283,30 @@ public class Pong implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent e) {
         int id = e.getKeyCode();
 
-		if (id == KeyEvent.VK_W) { w = false; }
-		if (id == KeyEvent.VK_S) { s = false; }
-		if (id == KeyEvent.VK_UP) { up = false; }
-		if (id == KeyEvent.VK_DOWN) { down = false; }
+		if (id == KeyEvent.VK_W) { 
+        w = false; 
+        if(p1 != null) {
+            p1.stop();
+        }
+    }
+    if (id == KeyEvent.VK_S) { 
+        s = false; 
+        if(p1 != null) {
+            p1.stop();
+        }
+    }
+    if (id == KeyEvent.VK_UP) { 
+        up = false; 
+        if(p2 != null) {
+            p2.stop();
+        }
+    }
+    if (id == KeyEvent.VK_DOWN) { 
+        down = false; 
+        if(p2 != null) {
+            p2.stop();
+        }
+    }
     }
 
     @Override
