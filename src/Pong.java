@@ -50,17 +50,17 @@ public class Pong implements ActionListener, KeyListener{
         jframe.setSize(width + 15, height + 35);
         jframe.setVisible(true);
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jframe.setLayout(new BorderLayout());
+        jframe.setLayout(new BorderLayout()); // Set layout to BorderLayout
 
         // Create a panel to hold the button
         JPanel panel = new JPanel();
 
         // Create the "Start Game" button
-        JButton startButton = new JButton("Play Game");
+        JButton startButton = new JButton("Play/Pause");
         panel.add(startButton);
 
 		// Create the "Normal Difficulty" button
-		JButton normalButton = new JButton("Normal Difficulty");
+		JButton normalButton = new JButton("Bot Normal");
 		panel.add(normalButton);
 
 		// Add an action listener to the button
@@ -74,7 +74,7 @@ public class Pong implements ActionListener, KeyListener{
 		});
 
 		// Create the "Hard Difficulty" button
-		JButton hardButton = new JButton("Hard Difficulty");
+		JButton hardButton = new JButton("Bot Hard");
 		panel.add(hardButton);
 
 		// Add an action listener to the button
@@ -264,7 +264,7 @@ public class Pong implements ActionListener, KeyListener{
 		if (id == KeyEvent.VK_S) { s = true; }
 		if (id == KeyEvent.VK_UP) { up = true; }
 		if (id == KeyEvent.VK_DOWN) { down = true; }
-		if (gameStatus != 1) {
+		if (gameStatus == 2) {
 			if (id == KeyEvent.VK_W) { w = true; }
 			if (id == KeyEvent.VK_S) { s = true; }
 			if (id == KeyEvent.VK_UP) { up = true; }
