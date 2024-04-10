@@ -9,7 +9,7 @@ public class Ball {
 
     public int x, y, width = 25, height = 25;	// Position of ball and its dimensions
     public int motionX, motionY;				// Ball Trajectory
-	public int numCollisions;					// Number of collisions with paddle
+	public int numCollisions;				// Number of collisions with paddle
 
     // Initializes Pong, random and initial ball location
     public Ball(Pong pong) {
