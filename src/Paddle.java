@@ -45,4 +45,9 @@ public class Paddle {
             else { y = Pong.pong.height - height; }
         }
     }
+
+    public void stop() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'stop'");
+    }
 }
