@@ -12,9 +12,10 @@ public class Paddle {
     public int score;                           // Current score for player
 
     public boolean isHard;
+    public int botDifficulty;
 
     // Sets location of paddle
-    public Paddle(Pong pong, int paddleNumber, boolean isHard) {
+    public Paddle(Pong pong, int paddleNumber, boolean isHard, int botDifficulty) {
         this.paddleNumber = paddleNumber;
         if (paddleNumber == 1) { this.x = 0; }
         if (paddleNumber == 2) { this.x = pong.width - width; }
@@ -22,6 +23,7 @@ public class Paddle {
         this.y = pong.height / 2 - this.height / 2;
 
         this.isHard = isHard;
+        this.botDifficulty = botDifficulty;
     }
 
     // Refreshes paddle render
@@ -32,22 +34,19 @@ public class Paddle {
 
     // Moves paddle up or down 
     public void move(boolean up) {
-        int speed;
-        if(isHard) { speed = hardSpeed; }
-        else { speed = baseSpeed; }
+        int speed = isHard ? hardSpeed : baseSpeed;
 
-        if(up) {
+        if (up) {
             if (y - speed > 0) { y -= speed; }
             else { y = 0; }
-        }
-        else {
+        } else {
             if (y + height + speed < Pong.pong.height) { y += speed; }
             else { y = Pong.pong.height - height; }
         }
     }
 
+    // Stops the paddle movement
     public void stop() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stop'");
+        // Do nothing for now
     }
 }
