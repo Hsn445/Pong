@@ -19,27 +19,27 @@ import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 public class Pong implements ActionListener, KeyListener {
-    static int scoreLimit = 7; // Score Limit
+    //static int scoreLimit = 7;    // Score Limit
+    static int scoreLimit = 1;//REMOVE AFTER TESTING FINISHED
+    int width = 1000, height = 700; // Graphics Screen Size
 
-    public static Pong pong; // Pong Class
-    public Renderer renderer; // Renderer
-    public Paddle p1, p2; // Player 1 and Player 2 paddles
-    public Ball ball; // Ball
-    public Random random; // Random
-    public JFrame jframe; // JFrame
+    public static Pong pong;    // Pong Class
+    public Renderer renderer;   // Renderer
+    public Paddle p1, p2;       // Player 1 and Player 2 paddles
+    public Ball ball;           // Ball
+    public Random random;       // Random
+    public JFrame jframe;       // JFrame
 
-    public boolean w, s, up, down; // Movement Keys
-    public boolean bot, setDifficulty; // Checks for playing with bot
+    public boolean w, s, up, down;      // Movement Keys
+    public boolean bot, setDifficulty;  // Checks for playing with bot
 
-    public int width = 1000, height = 700; // Graphics Screen Size
-    public int gameStatus = 0; // 0 - Menu, 1 - Pause, 2 - Play, 3 - End
-    public int playerWon; // Checks if Player 1 or 2 won
+    public int gameStatus = 0;  // Current action of game: 0 - Menu, 1 - Pause, 2 - Play, 3 - End
+    public int playerWon;       // Checks if Player 1 or 2 won
 
-    int botDifficulty;
-
-    // Buttons for bot difficulty
-    JButton normalButton;
-    JButton hardButton;
+    // Buttons which set bot difficulty
+    private JButton startButton;
+    private JButton normalButton;
+    private JButton hardButton;
 
     // Initializes renderer and random; sets screen size
     public Pong() {
@@ -49,7 +49,7 @@ public class Pong implements ActionListener, KeyListener {
         random = new Random();
         renderer = new Renderer();
 
-        jframe.setSize(width + 15, height + 35);
+        jframe.setSize(width + 15, height + 71);
         jframe.setVisible(true);
         jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jframe.setLayout(new BorderLayout()); // Set layout to BorderLayout
@@ -58,7 +58,7 @@ public class Pong implements ActionListener, KeyListener {
         JPanel panel = new JPanel();
 
         // Create the "Start Game" button
-        JButton startButton = new JButton("Play/Pause");
+        startButton = new JButton("Play/Pause");
         panel.add(startButton);
 
         // Create the "Normal Difficulty" button
@@ -68,31 +68,6 @@ public class Pong implements ActionListener, KeyListener {
         // Create the "Hard Difficulty" button
         hardButton = new JButton("Bot Hard");
         panel.add(hardButton);
-
-        // Add action listeners to the buttons
-        normalButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Set the bot difficulty to normal when the button is clicked
-                botDifficulty = 0;
-                setDifficulty = true;
-                bot = true;
-                disableBotDifficultyButtons(); // Disable bot difficulty buttons
-                panel.repaint(); // Repaint the panel
-            }
-        });
-
-        hardButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Set the bot difficulty to hard when the button is clicked
-                botDifficulty = 1;
-                setDifficulty = true;
-                bot = true;
-                disableBotDifficultyButtons(); // Disable bot difficulty buttons
-                panel.repaint(); // Repaint the panel
-            }
-        });
 
         // Add an action listener to the "Start Game" button
         startButton.addActionListener(new ActionListener() {
@@ -106,6 +81,29 @@ public class Pong implements ActionListener, KeyListener {
                 } else if (gameStatus == 2) {
                     gameStatus = 1;
                 }
+            }
+        });
+
+        // Add action listeners to the buttons
+        normalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Set the bot difficulty to normal when the button is clicked
+                setDifficulty = true;
+                bot = true;
+                disableBotDifficultyButtons();  // Disable bot difficulty buttons
+                panel.repaint();                // Repaint the panel
+            }
+        });
+
+        hardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Set the bot difficulty to hard when the button is clicked
+                setDifficulty = true;
+                bot = true;
+                disableBotDifficultyButtons();  // Disable bot difficulty buttons
+                panel.repaint();                // Repaint the panel
             }
         });
 
@@ -124,7 +122,7 @@ public class Pong implements ActionListener, KeyListener {
                 "move down 1");
         jframe.getRootPane().getActionMap().put("move down 1", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                if (p1.y + p1.height + 10 < Pong.this.height) {
+                if (p1.y + p1.height + 10 < height) {
                     p1.y += 10;
                 }
             }
@@ -145,7 +143,7 @@ public class Pong implements ActionListener, KeyListener {
                 "move down 2");
         jframe.getRootPane().getActionMap().put("move down 2", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                if (p2.y + p2.height + 10 < Pong.this.height) {
+                if (p2.y + p2.height + 10 < height) {
                     p2.y += 10;
                 }
             }
@@ -161,56 +159,56 @@ public class Pong implements ActionListener, KeyListener {
     // Initializes Paddles and ball
     public void start(boolean isHard) {
         gameStatus = 2;
-        p1 = new Paddle(this, 1, false, botDifficulty);
-        p2 = new Paddle(this, 2, isHard, botDifficulty);
+        p1 = new Paddle(this, 1, false);
+        p2 = new Paddle(this, 2, isHard);
         ball = new Ball(this);
     }
 
-// Updates paddle and ball positions
-public void update() {
-    if (p1.score >= scoreLimit) {
-        playerWon = 1;
-        gameStatus = 3;
-        enableBotDifficultyButtons(); // Enable bot difficulty buttons
-    }
-
-    if (p2.score >= scoreLimit) {
-        gameStatus = 3;
-        playerWon = 2;
-        enableBotDifficultyButtons(); // Enable bot difficulty buttons
-    }
-
-    if (w) {
-        p1.move(true);
-    }
-    if (s) {
-        p1.move(false);
-    }
-
-    if (!bot) {
-        if (up) {
-            p2.move(true);
+    // Updates paddle and ball positions
+    public void update() {
+        if (p1.score >= scoreLimit) {
+            playerWon = 1;
+            gameStatus = 3;
+            enableBotDifficultyButtons(); // Enable bot difficulty buttons
         }
-        if (down) {
-            p2.move(false);
+
+        if (p2.score >= scoreLimit) {
+            gameStatus = 3;
+            playerWon = 2;
+            enableBotDifficultyButtons(); // Enable bot difficulty buttons
         }
-    } else {
-        if (p2.y + p2.height / 2 < ball.y) {
-            p2.move(false);
+
+        if (w) {
+            p1.move(true);
         }
-        if (p2.y + p2.height / 2 > ball.y) {
-            p2.move(true);
+        if (s) {
+            p1.move(false);
         }
+
+        if (!bot) {
+            if (up) {
+                p2.move(true);
+            }
+            if (down) {
+                p2.move(false);
+            }
+        } else {
+            if (p2.y + p2.height / 2 < ball.y) {
+                p2.move(false);
+            }
+            if (p2.y + p2.height / 2 > ball.y) {
+                p2.move(true);
+            }
+        }
+
+        ball.update(p1, p2);
     }
 
-    ball.update(p1, p2);
-}
-
-// Enables bot difficulty buttons
-private void enableBotDifficultyButtons() {
-    normalButton.setEnabled(true);
-    hardButton.setEnabled(true);
-}
+    // Enables bot difficulty buttons
+    private void enableBotDifficultyButtons() {
+        normalButton.setEnabled(true);
+        hardButton.setEnabled(true);
+    }
 
     // Renders visual components
     public void renderer(Graphics2D g) {
@@ -225,17 +223,9 @@ private void enableBotDifficultyButtons() {
 
             if (!setDifficulty) {
                 g.setFont(new Font("Arial", 1, 30));
-                g.drawString("Press Shift to Play with Bot", width / 2 - 200, height / 2 + 25); // Adjust Location
                 g.drawString("<< Score Limit: " + scoreLimit + " >>", width / 2 - 150, height / 2 + 75); // Adjust
                                                                                                               // Location
             }
-        }
-
-        if (setDifficulty) {
-            String string = botDifficulty == 0 ? "Normal" : "Hard";
-
-            g.setFont(new Font("Arial", 1, 30));
-            g.drawString("<< Bot Difficulty: " + string + " >>", width / 2 - 180, height / 2 - 25); // Adjust Location
         }
 
         if (gameStatus == 1) {
@@ -271,10 +261,6 @@ private void enableBotDifficultyButtons() {
             } else {
                 g.drawString("Player " + playerWon + " Wins!", width / 2 - 165, 200); // Adjust Location
             }
-
-            g.setFont(new Font("Arial", 1, 30));
-            g.drawString("Press Space to Play Again", width / 2 - 185, height / 2 - 25); // Adjust Location
-            g.drawString("Press ESC for Menu", width / 2 - 140, height / 2 + 25); // Adjust Location
         }
     }
 
@@ -288,28 +274,11 @@ private void enableBotDifficultyButtons() {
         renderer.repaint();
     }
 
-// Checks pressed keys
-@Override
-public void keyPressed(KeyEvent e) {
-    int id = e.getKeyCode();
+    // Checks pressed keys
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int id = e.getKeyCode();
 
-    if (id == KeyEvent.VK_W) {
-        w = true;
-        p1.move(true); // Move paddle immediately when key is pressed
-    }
-    if (id == KeyEvent.VK_S) {
-        s = true;
-        p1.move(false); // Move paddle immediately when key is pressed
-    }
-    if (id == KeyEvent.VK_UP) {
-        up = true;
-        p2.move(true); // Move paddle immediately when key is pressed
-    }
-    if (id == KeyEvent.VK_DOWN) {
-        down = true;
-        p2.move(false); // Move paddle immediately when key is pressed
-    }
-    if (gameStatus == 2) {
         if (id == KeyEvent.VK_W) {
             w = true;
             p1.move(true); // Move paddle immediately when key is pressed
@@ -326,17 +295,34 @@ public void keyPressed(KeyEvent e) {
             down = true;
             p2.move(false); // Move paddle immediately when key is pressed
         }
-    }
+        if (gameStatus == 2) {
+            if (id == KeyEvent.VK_W) {
+                w = true;
+                p1.move(true); // Move paddle immediately when key is pressed
+            }
+            if (id == KeyEvent.VK_S) {
+                s = true;
+                p1.move(false); // Move paddle immediately when key is pressed
+            }
+            if (id == KeyEvent.VK_UP) {
+                up = true;
+                p2.move(true); // Move paddle immediately when key is pressed
+            }
+            if (id == KeyEvent.VK_DOWN) {
+                down = true;
+                p2.move(false); // Move paddle immediately when key is pressed
+            }
+        }
 
-    if (id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3)) {
-        gameStatus = 0;
+        if (id == KeyEvent.VK_ESCAPE && (gameStatus == 2 || gameStatus == 3)) {
+            gameStatus = 0;
+        }
+        if (id == KeyEvent.VK_SHIFT && gameStatus == 0) {
+            bot = true;
+            setDifficulty = true;
+            disableBotDifficultyButtons(); // Disable bot difficulty buttons
+        }
     }
-    if (id == KeyEvent.VK_SHIFT && gameStatus == 0) {
-        bot = true;
-        setDifficulty = true;
-        disableBotDifficultyButtons(); // Disable bot difficulty buttons
-    }
-}
 
     // Checks released keys
     @Override
