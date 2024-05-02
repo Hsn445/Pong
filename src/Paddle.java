@@ -1,8 +1,6 @@
-// Import Necessary Java Packages
 import java.awt.Graphics2D;
 import java.awt.Color;
 
-// Class creates paddle that players control
 public class Paddle {
     static int baseSpeed = 7;   // Player and easy bot base speed
     static int hardSpeed = 10;  // Hard bot base speed
@@ -13,7 +11,6 @@ public class Paddle {
 
     public boolean isHard;
 
-    // Sets location of paddle
     public Paddle(Pong pong, int paddleNumber, boolean isHard) {
         this.paddleNumber = paddleNumber;
         if (paddleNumber == 1) { this.x = 0; }
@@ -32,17 +29,50 @@ public class Paddle {
 
     // Moves paddle up or down 
     public void move(boolean up) {
-        int speed;
-        if(isHard) { speed = hardSpeed; }
-        else { speed = baseSpeed; }
+        int speed = isHard ? hardSpeed : baseSpeed;
 
-        if(up) {
+        if (up) {
             if (y - speed > 0) { y -= speed; }
             else { y = 0; }
-        }
-        else {
+        } else {
             if (y + height + speed < Pong.pong.height) { y += speed; }
             else { y = Pong.pong.height - height; }
         }
+    }
+
+    // Increase paddle size
+    public void increaseSize() {
+        height += 20;
+    }
+
+    // Decrease paddle size
+    public void decreaseSize() {
+        height -= 20;
+    }
+
+    // Increase paddle speed
+    public void increaseSpeed() {
+        baseSpeed += 2;
+    }
+
+    // Decrease paddle speed
+    public void decreaseSpeed() {
+        baseSpeed -= 1;
+    }
+
+    public void setSpeed(int i) {
+        int speed = isHard ? hardSpeed : baseSpeed;
+
+        if (i != 0) {
+            if (y - speed > 0) { y -= speed; }
+            else { y = 0; }
+        } else {
+            if (y + height + speed < Pong.pong.height) { y += speed; }
+            else { y = Pong.pong.height - height; }
+        }
+    }
+
+    public int getSpeed() {
+        return isHard ? hardSpeed : baseSpeed; 
     }
 }
